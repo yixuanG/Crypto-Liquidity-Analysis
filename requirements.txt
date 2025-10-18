@@ -1,0 +1,27 @@
+# Core Data Processing
+pandas>=1.5.0
+numpy>=1.23.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.12.0
+
+# Statistical Analysis
+scipy>=1.9.0
+statsmodels>=0.13.0
+scikit-learn>=1.1.0
+
+# Jupyter Environment
+jupyter>=1.0.0
+ipykernel>=6.15.0
+notebook>=6.4.12
+
+# Progress Bars
+tqdm>=4.64.0
+
+# Data Validation
+openpyxl>=3.0.10
+
+# Parallel Processing (built-in, but listed for clarity)
+# concurrent.futures (Python standard library)
+

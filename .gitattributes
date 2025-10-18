@@ -1,0 +1,25 @@
+# Handle line endings automatically
+* text=auto
+
+# Jupyter Notebooks
+*.ipynb linguist-documentation=false
+*.ipynb linguist-detectable=true
+*.ipynb linguist-language=Python
+
+# Python
+*.py linguist-language=Python
+
+# Documentation
+*.md linguist-documentation
+
+# Data files (if accidentally committed)
+*.csv binary
+*.xlsx binary
+*.xls binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+

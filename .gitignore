@@ -1,0 +1,63 @@
+# Data files (no copyright, cannot be shared)
+*.csv
+*.xlsx
+*.xls
+
+# Output files
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.rtf
+
+# Google Colab specific
+.config/
+
+# Large data directories
+01_Dataset/
+04_Minute_Data_Preparation/5-year_minute_data_by_coins/
+04_Minute_Data_Preparation/panel_generator/*/
+06_data_prep_for_regression_analysis/panel_*.csv
+06_data_prep_for_regression_analysis/t*_panel_*.csv
+07_data_prep_for_spillover_analysis/panel_*/
+minute_data_prep/csv/
+minute_data_prep/png/
+Impact Model/Hourly Model/
+Impact Model/Minute Model/
+
+# Archived old structure
+_archive/
+
