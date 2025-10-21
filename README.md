@@ -1,188 +1,129 @@
-# Cryptocurrency Liquidity Analysis
+# Market Microstructure Project - Cryptocurrency Liquidity Analysis
 
-A comprehensive research project analyzing the impact of major events on cryptocurrency market liquidity using high-frequency trading data.
+## Project Overview
 
-## 🎯 Project Overview
+This repository contains the research process of examining how major events impact cryptocurrency liquidity using high-frequency trading data. The central question is simple: when a regulatory announcement or economic shock hits, how does the market’s liquidity react, how quickly does it recover, and how much the stress spills over different coins?
 
-This project examines how significant events (economic, regulatory, and technical) affect cryptocurrency market liquidity across multiple coins (BTC, DOGE, SHIB, USDT). The analysis pipeline processes high-frequency data from millisecond-level to minute and hourly aggregations, identifies event impact points, and performs quantitative analysis on liquidity recovery patterns.
+The study covers four cryptocurrencies—Bitcoin, Dogecoin, Shiba Inu, and Tether—across 76 major events between 2020 and 2024.
 
-### Key Research Questions
-- How do different types of events impact cryptocurrency liquidity?
-- What is the intensity and duration of liquidity shocks?
-- How quickly does market liquidity recover after major events?
-- Are there spillover effects across different cryptocurrencies?
+---
 
-## 📊 Methodology
+## Our Approach
 
-### 1. Event Identification & Filtering
-- Identify major events affecting cryptocurrency markets (economic, regulatory, technical)
-- Filter events based on their significance and data availability
+### 1. Data Processing Pipeline
 
-### 2. Data Processing Pipeline
 - **Input**: High-frequency trade and quote data (millisecond-level)
 - **Output**: Aggregated minute-level and hourly liquidity metrics
 - **Metrics Computed**:
+
   - Bid-Ask Spread
   - Effective Spread
   - Market Depth (±1% around mid-price)
   - Trading Volume
   - Number of Trades
   - Average Trade Price
+- **Challenge**: Massive millisecond-level trade and quote data
+- **Solution**: Aggregate through a modular pipeline
+- **Metrics**: Effective spread, quoted bid-ask spread, market depth (±1% around mid-price), trading volume, trade count, average trade price
+- **Engineering choices**: Month-by-month processing for memory control, `ProcessPoolExecutor` for parallelism, merge trades and quotes with `pd.merge_asof` (2-second tolerance) before resampling
 
-### 3. Event Hour Detection
-- Identifies the precise hour when an event impacts the market
-- Uses price volatility (high-low difference) as the detection criterion
-- Searches within an ±18-hour window around the event date
+### 2. Event Hour Detection
 
-### 4. Panel Data Generation
-- Creates event study panels with data before and after each event
-- **Minute-level panels**: ±24 hours (1,440 minutes) around event hour
-- **Hourly panels**: ±30 days baseline + 10 days post-event observation
+- Markets react at specific moments rather than at announcement timestamps
+- Scan ±18 hours around each event to find the hour with the maximum price high-low range
+- Tested multiple detection windows (±1, ±2, ±4, ±6, ±12, ±18, ±24 hours) and selected ±18 hours for the best balance of accuracy and robustness
 
-### 5. Statistical Analysis
-- **Exploratory Data Analysis**: Visualization of liquidity patterns
-- **Peak & Recovery Analysis**: Measures intensity and recovery time
-- **Regression Analysis**: Quantifies event impacts with robustness tests
-- **Spillover Analysis**: Examines cross-cryptocurrency effects
+### 3. Panel Data Construction
 
-## 📁 Project Structure
+- Align events on a common timeline for comparative analysis
+- **Baseline**: 30 days of pre-event data to capture normal conditions
+- **Event window**: ±24 hours at the minute level for high-resolution shock dynamics
+- **Post-event observation**: 10 days to measure recovery
+- Output panels hold time along rows and events across columns for each liquidity metric
 
-```
-Crypto_Liquidity/
-├── README.md                          # Project documentation
-├── requirements.txt                   # Python dependencies
-├── .gitignore                         # Git ignore patterns
-│
-├── notebooks/                         # Analysis notebooks
-│   ├── 01_event_filter/              # Event identification (data files only)
-│   ├── 02_data_conversion/           # Millisecond to minute/hour conversion
-│   │   ├── data_convertor_BTC.ipynb
-│   │   ├── data_convertor_DOGE.ipynb
-│   │   ├── data_convertor_SHIB.ipynb
-│   │   └── data_convertor_USDT.ipynb
-│   ├── 03_event_hour_detection/      # Precise event timing
-│   │   └── detect_event_hour.ipynb
-│   ├── 04_panel_generation/          # Event study panel creation
-│   │   ├── minute_panel_generator.ipynb
-│   │   └── hourly_panel_generator.ipynb
-│   └── 05_analysis/                  # Statistical analysis
-│       ├── panel_EDA_visualization.ipynb
-│       ├── peak_recovery_analysis.ipynb
-│       └── regression_analysis.ipynb
-│
-├── data/                             # Data files (not included - no copyright)
-│   ├── raw/                          # High-frequency trade & quote data
-│   ├── processed/                    # Converted minute/hourly data
-│   └── events/                       # Event filter files
-│
-└── results/                          # Analysis outputs (gitignored)
-    ├── panels/                       # Generated panel datasets
-    ├── figures/                      # Visualization outputs
-    └── statistics/                   # Statistical results
-```
+### 4. Peak & Recovery Analysis
 
-## 🚀 Getting Started
+- **Standardized intensity**
+  ```
+  Intensity = (Peak Spread - Baseline Mean) / Baseline Std
+  ```
+- **Recovery time**: 20-minute moving average, market considered recovered after 20 consecutive minutes below 1.5 × baseline mean
+- **Findings**: Average intensity 6.45 standard deviations; average recovery 113 minutes; strong positive correlation between shock size and recovery duration (Pearson 0.51, Spearman 0.70)
 
-### Prerequisites
+### 5. Statistical Robustness
 
-```bash
-Python 3.8+
-Jupyter Notebook / Google Colab
-pandas, numpy, matplotlib, seaborn, scikit-learn
-```
-
-### Installation
-
-1. Clone this repository:
-```bash
-git clone https://github.com/yourusername/Crypto_Liquidity.git
-cd Crypto_Liquidity
-```
-
-2. Install required packages:
-```bash
-pip install -r requirements.txt
-```
-
-### Data Requirements
-
-⚠️ **Note**: The high-frequency trading data used in this project is proprietary and not included in this repository.
-
-To replicate this analysis, you will need:
-- High-frequency trade data with columns: timestamp, price, volume
-- High-frequency quote data with columns: timestamp, bid_price, ask_price, bid_size, ask_size
-- Event filter file with: event_date, event_type
-
-### Usage
-
-1. **Data Conversion** (notebooks/02_data_conversion/):
-   - Process raw millisecond data into minute-level metrics
-   - Run separately for each cryptocurrency
-   - Output: `minute_liquidity_YYYY_MM.csv` files
-
-2. **Event Hour Detection** (notebooks/03_event_hour_detection/):
-   - Identify precise timing of market impact
-   - Input: hourly price data + event dates
-   - Output: event hour timestamps
-
-3. **Panel Generation** (notebooks/04_panel_generation/):
-   - Create event study datasets
-   - Align data across multiple events
-   - Output: panel DataFrames for each metric
-
-4. **Analysis** (notebooks/05_analysis/):
-   - Visualize liquidity patterns around events
-   - Quantify impact intensity and recovery time
-   - Perform regression and spillover analysis
-
-## 📈 Key Findings
-
-*(Add your research findings here when publishing)*
-
-## 🛠️ Technical Details
-
-### Data Processing
-- **Parallel Processing**: Utilizes multi-core processing for large datasets
-- **Memory Optimization**: Processes data month-by-month to handle large files
-- **Missing Data Handling**: Fills cross-month gaps for events on the 1st of each month
-
-### Event Detection Parameters
-- **Detection Window**: ±18 hours around event date
-- **Baseline Period**: 30 days before event
-- **Post-Event Period**: 10 days after event
-- **Impact Criterion**: Maximum high-low price difference
-
-### Statistical Methods
-- Panel data regression with fixed effects
-- Robustness tests with different model specifications
-- Vector autoregression for spillover analysis
-
-## 📚 References
-
-*(Add relevant academic papers and data sources)*
-
-## 👤 Author
-
-**Yixuan GUO**
-
-- Academic Project: Financial Management Course
-- Institution: *(Add your institution)*
-
-## 📄 License
-
-This project is for academic and educational purposes only. The data used is proprietary and not included in this repository.
-
-## 🙏 Acknowledgments
-
-- Data provided by course professor
-- Thanks to the Financial Management course team
-
-## 📞 Contact
-
-For questions or collaboration opportunities, please contact:
-*(Add your contact information)*
+- Intensity distribution is right-skewed (skewness 2.81)
+- Applied Box-Cox transformation to approach normality (skewness ≈ 0.01)
+- Used Median Absolute Deviation for outlier detection and built bootstrap confidence intervals
+- Compared crypto-specific versus macro events—no significant difference in shock intensity or recovery time
 
 ---
 
-**Note**: This is a research project developed for academic purposes. The code is provided as-is for educational reference. Data is not included due to copyright restrictions.
+## Research & Technical Challenges
 
+### Pinpointing the Actual Event Clock
+
+- **Problem**: Announcement timestamps did not match the true moment of market reaction. Exchanges incorporate information at different speeds and some official release times were only approximate.
+- **What we tried**: Compared fixed-hour windows (±1, ±2, ±4, ±6, ±12, ±18, ±24 hours) and evaluated how often each window surfaced a unique volatility spike. Added guardrails so the detected hour must exceed baseline volatility by 3 standard deviations.
+- **Outcome**: ±18 hours delivered the best recall without surfacing unrelated volatility. We also log secondary peaks (within ±2 hours of the primary) to flag potential multi-stage reactions.
+
+### Synchronizing Trades and Quotes at Millisecond Resolution
+
+- **Problem**: Quoted books and trades arrive on separate feeds with microsecond offsets, gaps, and occasional clock drift. Naively merging them creates negative spreads or lost depth.
+- **What we did**: Cleaned extreme quotes (spreads < 0 or > 5%), forward-filled level-1 quotes for gaps up to 2 seconds, and used `pd.merge_asof` with a 2-second tolerance plus direction="backward" to ensure the trade uses the latest valid quote. When no quote matched, the trade was excluded from liquidity metrics but logged for diagnostics (≈3.1% of trades per month).
+
+### Reconstructing Order-Book Depth from Partial Snapshots
+
+- **Problem**: Some days provided only top-of-book data while others included 10-level depth. We needed consistent ±1% market depth metrics.
+- **Solution**: Standardized by integrating size within the price band. When only level-1 was available, we constrained the depth calculation to reported sizes and tagged the day with a coverage flag so downstream analysis could test robustness with and without limited-depth sessions.
+
+### Maintaining Cross-Month Continuity
+
+- **Issue**: Event windows that straddle month boundaries lacked the necessary baseline minutes because source files were stored month-by-month.
+- **Fix**: The pipeline automatically detects boundary events, loads the preceding month, and splices in the missing minutes before resampling. Without this automation, roughly 10% of panels needed manual patching and baseline averages were biased downward.
+
+---
+
+## Impact & Results Summary
+
+- Liquidity shocks average 6.45 standard deviations above baseline
+- Median recovery time is roughly 60 minutes (mean 113 minutes)
+- Bigger shocks take meaningfully longer to recover—a key insight for risk management and trading strategies
+- The pipeline scales to billions of records and generalizes to other event studies
+
+## Repository Structure
+
+```
+notebooks/
+  01_event_filter/
+  02_data_conversion/
+  03_event_hour_detection/
+  04_panel_generation/
+  05_analysis/
+data/
+  raw/
+  processed/
+  events/
+results/
+  panels/
+  figures/
+  statistics/
+```
+
+Raw high-frequency data is proprietary and excluded from version control. Generated panels, figures, and stats are stored under `results/` and ignored by git.
+
+---
+
+## Getting Started
+
+1. Install dependencies: `pip install -r requirements.txt`
+2. Obtain the proprietary trade, quote, and event datasets and place them under `data/raw` and `data/events`
+3. Execute notebooks in the order shown above, adapting paths as needed for local or Colab environments
+
+---
+
+## Credits
+
+- Author: Yixuan Guo
+- Academic project for the Financial Management course
+- Data provided by the course professor
