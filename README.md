@@ -1,5 +1,9 @@
 # Market Microstructure Project - Cryptocurrency Liquidity Analysis
 
+## Important Notice
+
+The multi-cryptocurrency, millisecond-level trade and quote dataset used throughout this study was purchased by the supervising professor and remains his personal or institutional property. Redistribution is not permitted and the raw files are not bundled with this repository. Users who are interested in reproducing the entire analysis will prepare the equivalent datasets on their own. Otherwise, it is encouraged to use the converted minute- and hour-level data.
+
 ## Project Overview
 
 This repository contains the research process of examining how major events impact cryptocurrency liquidity using high-frequency trading data. The central question is simple: when a regulatory announcement or economic shock hits, how does the market’s liquidity react, how quickly does it recover, and how much the stress spills over different coins?
