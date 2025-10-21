@@ -2,7 +2,18 @@
 
 ## Important Notice
 
-The multi-cryptocurrency, millisecond-level trade and quote dataset used throughout this study was purchased by the supervising professor and remains his personal or institutional property. Redistribution is not permitted and the raw files are not bundled with this repository. Users who are interested in reproducing the entire analysis will prepare the equivalent datasets on their own. Otherwise, it is encouraged to use the converted minute- and hour-level data.
+The multi-cryptocurrency, millisecond-level trade and quote dataset used throughout this study was purchased by the supervising professor and remains his personal or institutional property. Redistribution is not permitted and the raw files are not bundled with this repository. Users who are interested in reproducing the entire analysis will prepare the equivalent datasets on their own.
+
+To reproduce the full workflow, assemble datasets with the specifications below (file naming can be adapted in the notebooks):
+
+| Dataset                      | Instruments                           | Frequency & Granularity                                                       | Required Fields                                                                                                           | Expected Folder               |
+| ---------------------------- | ------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Trades                       | BTC-USD, DOGE-USD, SHIB-USD, USDT-USD | Millisecond timestamps (stored as microseconds) in compressed daily CSV files | `timestamp`, `price`, `amount` (or `size`), optional `side`                                                     | `data/raw/<symbol>/trades/` |
+| Quotes / Order Book          | Same as above                         | Millisecond snapshots; level-1 mandatory, deeper levels optional              | `timestamp`, `bid_price`, `ask_price`, `bid_size`, `ask_size`, optional depth ladders (`price_n`, `size_n`) | `data/raw/<symbol>/quotes/` |
+| Event Calendar               | All covered assets                    | Daily (announcement date) with optional time stamps                           | `event_date`, `event_time` (if available), `event_type`, `description`, optional `event_id`                     | `data/events/`              |
+| Exchange Metadata (optional) | Any                                   | As provided by the vendor                                                     | Venue identifiers, data-source labels, mapping tables for symbol names                                                    | `data/raw/metadata/`        |
+
+The pipeline expects raw feeds to be organized by instrument and date. Conversion notebooks assume daily compressed CSV files; adjust loaders if your provider uses alternative formats. Minute-level and hourly aggregates are generated within the repository and saved under `results/`.
 
 ## Project Overview
 
