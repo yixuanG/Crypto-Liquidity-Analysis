@@ -91,6 +91,8 @@ The study covers four cryptocurrencies—Bitcoin, Dogecoin, Shiba Inu, and Tethe
 - Bigger shocks take meaningfully longer to recover—a key insight for risk management and trading strategies
 - The pipeline scales to billions of records and generalizes to other event studies
 
+---
+
 ## Repository Structure
 
 ```
